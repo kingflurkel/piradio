@@ -1,0 +1,149 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+<dom-module id="kf-listitem">
+  <style>
+    :host {
+      display: block;
+      width: 100%;
+    }
+
+    paper-material {
+    border-radius: 2px;
+    height: 100%;
+    padding: 0px;
+    width: calc(98.66%);
+    margin: 16px auto;
+    background: white;
+  }
+
+  .thumb {
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+  }
+
+  .content {
+    padding: 5px 0px 10px 20px;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 18px;
+    line-height: 10px;
+  }
+
+  h3 {
+    font-size: 16px;
+    line-height: 10px;
+  }
+  </style>
+  <template>
+    <paper-material elevation="1">
+     <iron-ajax id="ajax"
+        url="https://www.googleapis.com/youtube/v3/search"
+        params = '{"part":"snippet", "key": "AIzaSyCMmHW8n0zWxnPT6BvOFIcvBVjGC1GLG2E", "type": "video"}'
+        handle-as="json"
+        last-response="{{ajaxResponse}}"></iron-ajax>
+        
+        <div class="horizontal layout">
+          <div class="thumb">
+            <img src="{{image}}" class="thumb">
+          </div>
+          <div class="content horizontal layout flex">
+            <div class="flex">
+                <h1>{{songtitle}}</h1>
+                <h3>{{artist}}</h3>
+            </div>
+            <div class="vertical layout end">
+              <paper-icon-button icon="av:play-arrow" on-click="youtube"></paper-icon-button>
+<!--               <a href="{{spotifyurl}}" target="_blank">S</a>
+ -->            </div>
+          </div>
+        </div>
+        </paper-material>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'kf-listitem',
+
+    properties: {
+      foo: {
+        type: String,
+        value: 'bar',
+        notify: true
+      },
+
+      artist: {
+        type: String
+        
+      },
+
+      clip: {
+        type: String, 
+        notify: true
+      },
+
+      songtitle: {
+        type: String,
+        observer: 'findYoutube'
+      },
+
+      youtubeid: {
+        type: String,
+        notify: true
+      },
+
+      spotifyurl: {
+        type: String
+      },
+
+      ajaxResponse: {
+        observer: 'response'
+      }
+    },
+
+    openyoutube: function(){
+      window.open('', 'youtubeRadio');
+    },
+
+    setID: function(e){
+      this.id = e.detail.msg;
+    },
+
+    findYoutube: function(){
+      if(this.artist){
+        console.log('find youtube clip for ', this.artist, this.songtitle);
+        this.$.ajax.params.q = (this.artist+' '+this.songtitle);
+        this.$.ajax.generateRequest();
+      }
+    },
+
+    youtube: function(){
+      this.fire('iron-signal', {name: 'changeyoutubeclip', data: this.youtubeid});
+      //this.fire('changeyoutubeclip', {'msg': this.youtubeid });
+    },
+
+    response: function(){
+      console.log(this.ajaxResponse.items[0].id.videoId);
+      this.youtubeid = this.ajaxResponse.items[0].id.videoId;
+      this.youtubeurl = 'https://www.youtube.com/watch?v='+this.youtubeid;
+      //this.fire('gotid', { 'msg': this.ajaxResponse.items[0].id.videoId })
+    }
+  });
+})();
+</script>

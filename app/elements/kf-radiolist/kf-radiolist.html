@@ -1,0 +1,158 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="kf-radiolist">
+  <style>
+    :host {
+      display: block;
+    }
+    paper-menu iron-icon {
+    margin-right: 33px;
+    opacity: 0.54;
+  }
+
+  .paper-menu > .iron-selected {
+    color: var(--default-primary-color);
+  }
+
+  paper-menu a {
+    text-decoration: none;
+    color: var(--menu-link-color);
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    min-height: 48px;
+    padding: 0 16px;
+  }
+  </style>
+  <template>
+
+  <google-youtube-api on-api-load="loaded"></google-youtube-api>
+
+  <iron-signals on-iron-signal-changeyoutubeclip="changeyoutubeclip"></iron-signals>
+
+    <firebase-collection
+      id="fb" 
+      order-by-child="name"
+      data="{{items}}"
+      on-firebase-value="prepare"
+      location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
+
+    <paper-menu class="list" on-iron-select="test">
+
+              <template is="dom-repeat" items="{{radios}}">
+
+             
+                <paper-item id="{{item.key}}" on-click=""><iron-icon src="{{item.image}}"></iron-icon>
+                <span>{{item.name}}</span></paper-item>
+                
+
+              </template>
+
+              </paper-menu>
+
+              
+
+          </paper-menu>
+          <div id="player"></div>
+  </template>
+</dom-module>
+<script>
+function onPlayerReady(event) {
+        //event.target.playVideo();
+      }
+
+      var player;
+(function() {
+  Polymer({
+    is: 'kf-radiolist',
+
+    properties: {
+      foo: {
+        type: String,
+        value: 'bar',
+        notify: true
+      },
+
+      youtubeid: {
+        type: String
+      }
+    },
+
+    test: function(e, detail, sender){
+      console.log('tessssst', e, detail.item.id, sender);
+      this.fire('iron-signal', {name: 'changechannel', data: detail.item.id});
+    },
+    ready: function(){
+       this.youtubeid = 'yQVxUICOCWA';
+       
+    },
+
+    channel: function(e, detail, sender){
+      console.log('change station to ', e, detail, sender);
+    },
+
+    prepare: function(){
+      console.log('yoooo');
+      var radios = [];
+      for (var i = this.items.length - 1; i >= 0; i--) {
+        radios.push({  'name': this.items[i].name,
+                            'key': this.items[i].__firebaseKey__,
+                            'image': '../../images/'+this.items[i].__firebaseKey__+'.png'
+        });
+      };
+      this.radios = radios;
+    },
+
+    loaded: function(){
+      var that = this;
+
+      player = new YT.Player('player', {
+          height: '170',
+          id: 'radio',
+          width: '255',
+          videoId: that.youtubeid,
+          events: {
+            'onReady': onPlayerReady,
+            //'onStateChange': onPlayerStateChange
+          }
+        });
+      console.log('Youtube api loaded');
+      player.addEventListener('onStateChange', function(e, detail){
+        //console.log('player state changed: ', e, detail);
+        that.fire('iron-signal', {name: 'clipstatechanged', data: e.data});
+      });
+    },
+
+
+
+    changeyoutubeclip: function(e, detail, sender){
+      console.log('change youtube to ', this.youtubeid);
+      //player.videoId = detail;
+      player.loadVideoById({videoId:detail});
+    }
+    
+  });
+})();
+</script>

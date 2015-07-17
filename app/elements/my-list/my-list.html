@@ -1,0 +1,112 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<dom-module id="my-list">
+  <style>
+    :host {
+      display: block;
+    }
+
+  
+kf-listitem {
+  width: 100%;
+}
+
+  </style>
+  <template>
+
+    <firebase-collection
+      id="fb" 
+      order-by-child="unixtimestamp"
+      data="{{items}}"
+      on-firebase-value="dataChanged"></firebase-collection>
+
+      <paper-menu class="list" on-iron-select="test">
+
+      <template is="dom-repeat" items="{{myplaylist}}">
+        <kf-listitem spotifyurl="[[item.spotify.external_urls.spotify]]" songtitle="[[item.title]]" artist="[[item.artist]]" image="[[item.image]]"></kf-listitem>
+      </template>
+
+      </paper-menu>
+
+      </iron-menu>
+
+      <iron-signals on-iron-signal-changechannel="changechannel"></iron-signals>
+      <iron-signals on-iron-signal-clipstatechanged="clipstatechanged"></iron-signals>
+
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'my-list',
+      properties: {
+        items: {
+          type: Array,
+          notify: true
+        },
+
+        radiostation: {
+          type: Number,
+          observer: 'setRadiostation'
+        }
+    
+      },
+      ready: function() {
+        //this.fire('changeYoutubeclip', {'msg': '9Sc-ir2UwGU'});
+      },
+
+      clipstatechanged: function(e, detail){
+        console.log('clip changed state: ', e, detail);
+        if(detail==0){
+          console.log('liedje is gedaan, speel volgende');
+          this.fire('iron-signal', {name: 'nexttrack'});
+        }
+      },
+
+      changechannel: function(e, detail, sender){
+        this.radiostation = detail;
+        console.log('change channel to ', detail);
+      },
+
+      changeclip: function(e){
+        console.log('change clip ',e.detail.msg);
+        //this.fire('changeclip', {'msg': e.detail.msg});
+      },
+
+      test: function(e, detail, sender){
+        console.log(e.target);
+        //this.fire('changeclip', {'msg': e.detail.item.clip });
+      },
+
+      setRadiostation: function(){
+        this.$.fb.location = 'https://popping-heat-1762.firebaseio.com/radioplus/playlists/'+this.radiostation+'/16633';
+      },
+
+      dataChanged: function(){
+        //this.myplaylist = [];
+        var myplaylist = [];
+        for (var i = this.items.length - 1; i >= 0; i--) {
+          //console.log(this.items[i]);
+          myplaylist.push({  'title': this.items[i].title,
+                                  'artist': this.items[i].artist,
+                                  'image': this.items[i].image,
+                                  'unixtimestamp': this.items[i].unixtimestamp,
+                                  'spotify': this.items[i].spotify, 
+                                  'firebasekey': this.items[i].__firebaseKey__,
+          });
+        };
+        //console.log('data changed');
+        //console.log(myplaylist);
+        this.myplaylist = myplaylist;
+      }
+    });
+  })();
+</script>
