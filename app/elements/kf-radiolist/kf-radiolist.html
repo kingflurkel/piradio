@@ -10,6 +10,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+
 
 <dom-module id="kf-radiolist">
   <style>
@@ -18,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-family: "Lato", sans-serif !important;
       font-weight: 200;
       font-size: 16px;
+      background-color: #444;
     }
 
     paper-menu iron-icon {
@@ -27,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   .list {
     background-color: #444444;
-    height: 80%;
+    height: 70%;
     margin-top: 20px;
   }
 
@@ -50,10 +53,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   #player {
     height: 170px;
     width: 255px;
+    background-color: #444;
   }
 
   paper-scroll-header-panel {
-    height: 65%;
+    height: 60%;
     background-color: #444;
   }
 
@@ -125,10 +129,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Drawer Toolbar -->
     
 
-         
+         <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
 
-      <div class="vertical layout list">
-    <iron-selector class="list" on-iron-select="test" selected="0" selected-class="active">
+      <div class="vertical layout">
+    <iron-selector class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
 
               <template is="dom-repeat" items="{{radios}}">
 
@@ -155,7 +159,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 <script>
 function onPlayerReady(event) {
-        //event.target.playVideo();
+        event.target.playVideo();
       }
 
       var player;
@@ -181,7 +185,8 @@ function onPlayerReady(event) {
       this.fire('iron-signal', {name: 'currentchannel', data: detail.item.station});
     },
     ready: function(){
-       this.youtubeid = 'yQVxUICOCWA';
+       //this.youtubeid = 'yQVxUICOCWA';
+       
        
     },
 
@@ -219,6 +224,10 @@ function onPlayerReady(event) {
         //console.log('player state changed: ', e, detail);
         that.fire('iron-signal', {name: 'clipstatechanged', data: e.data});
       });
+
+      player.addEventListener('onError', function(e, detail){
+        console.log('Player error!', e, detail);
+       });
     },
 
 
@@ -226,7 +235,9 @@ function onPlayerReady(event) {
     changeyoutubeclip: function(e, detail, sender){
       //console.log('change youtube to ', this.youtubeid);
       //player.videoId = detail;
-      player.loadVideoById({videoId:detail});
+      if(player.getPlayerState()!=1){
+        player.loadVideoById({videoId:detail});
+      };
     }
     
   });

@@ -41,8 +41,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   }
 
   h3 {
-    font-size: 16px;
-    line-height: 10px;
+    font-size: 11px;
+    line-height: 6px;
+    color: black;
+    margin-top: -5px;
+    opacity: 0.6;
   }
 
   h2 {
@@ -55,6 +58,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   display: block;
   padding: 2% 4% 2% 4%;
   border-bottom: 1px solid #db4f4f;
+  max-width: 600px;
+  width: 100%;
   }
 
 
@@ -90,6 +95,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   font-weight: 600;
   white-space: normal;
   line-height: 90%;
+  }
+
+  .active h3 {
+  color: #e55253;
+  font-size: 11px;
+  line-height: 6px;
   }
 
 
@@ -134,16 +145,12 @@ h1 {
       order-by-child="unixtimestamp"
       data="{{items}}"
       on-firebase-value="dataChanged"></firebase-collection>
-
-
-      <!-- <h2>{{currenttrack}}</h2> -->
-
-      <iron-selector selected="{{currenttrack}}" on-iron-select="chooseclip" id="menuke" selected-class="active" attr-for-selected="id">
-        
       
+      <iron-selector selected="{{currenttrack}}" on-iron-select="chooseclip" id="menuke" selected-class="active" attr-for-selected="id" class="vertical layout center">
+        
       <template is="dom-repeat" items="{{myplaylist}}">
             
-            <div class="horizontal layout playitem" id="{{item.youtube}}">
+            <div class="horizontal layout playitem " id="{{item.youtube}}">
               <div class="vertical layout center center-justified">
                 <img src="{{item.image}}" class="thumb">
               </div>
@@ -151,7 +158,7 @@ h1 {
                 <div class="flex">
                   <h2>{{item.songtitle}}</h2>
                   <h1>{{item.artist}}</h1>
-                  <!-- <p><h3>{{item.playtime}}</h3></p> -->
+                  <h3>{{item.playtime}}</h3>
                 </div>
               </div>
             </div>
@@ -172,7 +179,7 @@ h1 {
       properties: {
         items: {
           type: Array,
-          notify: true
+          notify: true,
         },
 
         radiostation: {
@@ -181,24 +188,29 @@ h1 {
         },
 
         currenttrack: {
-          value: 0,
-          type: Number,
-          observer: '_selectedIndexChanged'
+            value: false,
+            notify: true          
+        },
+
+        myplaylist: {
+          observer: 'checktrack'
         }
     
       },
       ready: function() {
         //this.fire('changeYoutubeclip', {'msg': '9Sc-ir2UwGU'});
+
       },
 
-      _selectedIndexChanged: function(newIndex, oldIndex) {
-      if (typeof newIndex === 'number') {
-        this.selectedMessage = 'You selected item #' + newIndex + '.';
-      }
-      if (typeof oldIndex === 'number') {
-        this.oldSelectedMessage = 'Before, you had item #' + oldIndex + ' selected.';
-      }
-    },
+      checktrack: function(){
+
+           this.toptrack = this.myplaylist[0].youtube;
+
+          console.log(this.toptrack);
+          this.$.menuke.select(this.toptrack);
+       
+      },
+   
 
     formatTime: function(){
       this.playTime = moment(this.timePlayed).format('dddd D MMMM, HH:mm');
@@ -262,6 +274,7 @@ h1 {
         //console.log('data changed');
         //console.log(myplaylist);
         this.myplaylist = myplaylist;
+        
       }
     });
   })();
