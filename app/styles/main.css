@@ -13,3 +13,16 @@ body {
   color: #333;
 }
 
+.heroimage {
+	width: 80px;
+	height: 80px;
+}
+
+.completeCenter {
+	width: 100%;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+    }
+

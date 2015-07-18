@@ -59,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-firebase-value="prepare"
       location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
 
-    <paper-menu class="list" on-iron-select="test">
+    <paper-menu class="list" on-iron-select="test" selected="0">
 
               <template is="dom-repeat" items="{{radios}}">
 
@@ -101,7 +101,7 @@ function onPlayerReady(event) {
     },
 
     test: function(e, detail, sender){
-      console.log('tessssst', e, detail.item.id, sender);
+      //console.log('tessssst', e, detail.item.id, sender);
       this.fire('iron-signal', {name: 'changechannel', data: detail.item.id});
     },
     ready: function(){
@@ -110,11 +110,11 @@ function onPlayerReady(event) {
     },
 
     channel: function(e, detail, sender){
-      console.log('change station to ', e, detail, sender);
+      //console.log('change station to ', e, detail, sender);
     },
 
     prepare: function(){
-      console.log('yoooo');
+      //console.log('yoooo');
       var radios = [];
       for (var i = this.items.length - 1; i >= 0; i--) {
         radios.push({  'name': this.items[i].name,
@@ -138,7 +138,7 @@ function onPlayerReady(event) {
             //'onStateChange': onPlayerStateChange
           }
         });
-      console.log('Youtube api loaded');
+      //console.log('Youtube api loaded');
       player.addEventListener('onStateChange', function(e, detail){
         //console.log('player state changed: ', e, detail);
         that.fire('iron-signal', {name: 'clipstatechanged', data: e.data});
@@ -148,7 +148,7 @@ function onPlayerReady(event) {
 
 
     changeyoutubeclip: function(e, detail, sender){
-      console.log('change youtube to ', this.youtubeid);
+      //console.log('change youtube to ', this.youtubeid);
       //player.videoId = detail;
       player.loadVideoById({videoId:detail});
     }

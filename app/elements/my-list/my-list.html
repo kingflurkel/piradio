@@ -14,10 +14,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-  
-kf-listitem {
-  width: 100%;
-}
+  .thumb {
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+  }
+
+  .content {
+    padding: 0px 0px 10px 20px;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 18px;
+    line-height: 10px;
+  }
+
+  h3 {
+    font-size: 16px;
+    line-height: 10px;
+  }
+
+  h2 {
+    font-size: 38px;
+    color: white;
+  }
+
+   paper-material {
+    border-radius: 2px;
+    height: 100%;
+    padding: 0px;
+    width: calc(98.66%);
+    margin: 16px auto;
+    background: white;
+  }
+
+  paper-menu {
+    padding: 0px;
+    background: #424242;
+  }
 
   </style>
   <template>
@@ -28,10 +63,29 @@ kf-listitem {
       data="{{items}}"
       on-firebase-value="dataChanged"></firebase-collection>
 
-      <paper-menu class="list" on-iron-select="test">
+
+      <!-- <h2>{{currenttrack}}</h2> -->
+
+
+      <paper-menu on-iron-select="chooseclip" id="menuke" selected="{{currenttrack}}">
 
       <template is="dom-repeat" items="{{myplaylist}}">
-        <kf-listitem spotifyurl="[[item.spotify.external_urls.spotify]]" songtitle="[[item.title]]" artist="[[item.artist]]" image="[[item.image]]"></kf-listitem>
+        <paper-item id="{{item.youtube}}">
+          <paper-material>
+            <div class="horizontal layout">
+              <div class="thumb">
+                <img src="{{item.image}}" class="thumb">
+              </div>
+              <div class="content horizontal layout flex">
+                <div class="flex">
+                  <h1>{{item.songtitle}}</h1>
+                  <h3>{{item.artist}}</h3>
+                </div>
+              </div>
+            </div>
+          </paper-material>
+        <!-- <kf-listitem spotifyurl="[[item.spotify.external_urls.spotify]]" songtitle="[[item.title]]" artist="[[item.artist]]" image="[[item.image]]"></kf-listitem> -->
+        </paper-item>
       </template>
 
       </paper-menu>
@@ -56,6 +110,12 @@ kf-listitem {
         radiostation: {
           type: Number,
           observer: 'setRadiostation'
+        },
+
+        currenttrack: {
+          value: 0,
+          type: Number,
+          observer: '_selectedIndexChanged'
         }
     
       },
@@ -63,31 +123,48 @@ kf-listitem {
         //this.fire('changeYoutubeclip', {'msg': '9Sc-ir2UwGU'});
       },
 
+      _selectedIndexChanged: function(newIndex, oldIndex) {
+      if (typeof newIndex === 'number') {
+        this.selectedMessage = 'You selected item #' + newIndex + '.';
+      }
+      if (typeof oldIndex === 'number') {
+        this.oldSelectedMessage = 'Before, you had item #' + oldIndex + ' selected.';
+      }
+    },
+
       clipstatechanged: function(e, detail){
-        console.log('clip changed state: ', e, detail);
+        //console.log('clip changed state: ', e, detail);
         if(detail==0){
-          console.log('liedje is gedaan, speel volgende');
-          this.fire('iron-signal', {name: 'nexttrack'});
+          //console.log('liedje is gedaan, speel volgende');
+          //this.fire('iron-signal', {name: 'nexttrack'});
+          if(this.currenttrack>=1){
+            this.currenttrack--;
+          } else {
+            this.currenttrack = 0;
+          }
         }
       },
 
       changechannel: function(e, detail, sender){
         this.radiostation = detail;
-        console.log('change channel to ', detail);
+        //console.log('change channel to ', detail);
       },
 
       changeclip: function(e){
-        console.log('change clip ',e.detail.msg);
+        //console.log('change clip ',e.detail.msg);
         //this.fire('changeclip', {'msg': e.detail.msg});
       },
 
-      test: function(e, detail, sender){
-        console.log(e.target);
-        //this.fire('changeclip', {'msg': e.detail.item.clip });
+      chooseclip: function(e, detail, sender){
+        //console.log('clip change: ', detail.item.id);
+        //this.fire('changeclip', {'msg': detail.item.attributes[0].value });
+        this.fire('iron-signal', {name: 'changeyoutubeclip', data: detail.item.id});
       },
 
       setRadiostation: function(){
-        this.$.fb.location = 'https://popping-heat-1762.firebaseio.com/radioplus/playlists/'+this.radiostation+'/16633';
+        var now = new Date();
+        var fullDaysSinceEpoch = Math.floor(now / 8.64e7);
+        this.$.fb.location = 'https://popping-heat-1762.firebaseio.com/radioplus/playlists/'+this.radiostation+'/'+fullDaysSinceEpoch;
       },
 
       dataChanged: function(){
@@ -95,12 +172,18 @@ kf-listitem {
         var myplaylist = [];
         for (var i = this.items.length - 1; i >= 0; i--) {
           //console.log(this.items[i]);
-          myplaylist.push({  'title': this.items[i].title,
-                                  'artist': this.items[i].artist,
-                                  'image': this.items[i].image,
-                                  'unixtimestamp': this.items[i].unixtimestamp,
-                                  'spotify': this.items[i].spotify, 
-                                  'firebasekey': this.items[i].__firebaseKey__,
+          if(!this.items[i].image){
+            this.image = "images/imagenotfound.png";
+          } else {
+            this.image = this.items[i].image;
+          };
+          myplaylist.push({  'songtitle': this.items[i].title,
+                            'artist': this.items[i].artist,
+                            'image': this.image,
+                            'unixtimestamp': this.items[i].unixtimestamp,
+                            'spotify': this.items[i].spotify, 
+                            'firebasekey': this.items[i].__firebaseKey__,
+                            'youtube': this.items[i].videoid
           });
         };
         //console.log('data changed');

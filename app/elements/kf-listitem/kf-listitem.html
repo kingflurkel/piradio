@@ -127,7 +127,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     findYoutube: function(){
       if(this.artist){
-        console.log('find youtube clip for ', this.artist, this.songtitle);
+        //console.log('find youtube clip for ', this.artist, this.songtitle);
         this.$.ajax.params.q = (this.artist+' '+this.songtitle);
         this.$.ajax.generateRequest();
       }
@@ -139,7 +139,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     response: function(){
-      console.log(this.ajaxResponse.items[0].id.videoId);
+      //console.log(this.ajaxResponse.items[0].id.videoId);
       this.youtubeid = this.ajaxResponse.items[0].id.videoId;
       this.youtubeurl = 'https://www.youtube.com/watch?v='+this.youtubeid;
       //this.fire('gotid', { 'msg': this.ajaxResponse.items[0].id.videoId })

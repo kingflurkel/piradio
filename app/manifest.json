@@ -1,6 +1,6 @@
 {
-  "name": "Popcorn Radio",
-  "short_name": "Popcorn Radio",
+  "name": "pirad.io",
+  "short_name": "pirad.io",
   "icons": [{
         "src": "images/touch/icon-128x128.png",
         "sizes": "128x128"
