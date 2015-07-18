@@ -7,17 +7,26 @@ The complete set of contributors may be found at http://polymer.github.io/CONTRI
 Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<script src="../../bower_components/momentjs/moment.js"></script>
+<script src="../../bower_components/momentjs/locale/nl.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Lato:100,200,300,600,900' rel='stylesheet' type='text/css'>
 
 <dom-module id="my-list">
   <style>
     :host {
       display: block;
+      font-family: "Lato", sans-serif !important;
+      text-transform: uppercase;
+      letter-spacing: normal;
     }
 
   .thumb {
-    width: 96px;
-    height: 96px;
+    width: 75px;
+    height: 75px;
     overflow: hidden;
+    border-radius: 50%;
   }
 
   .content {
@@ -28,6 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   h1 {
     font-size: 18px;
     line-height: 10px;
+
   }
 
   h3 {
@@ -38,21 +48,83 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   h2 {
     font-size: 38px;
     color: white;
+    margin-bottom: -10px;
   }
 
-   paper-material {
-    border-radius: 2px;
-    height: 100%;
-    padding: 0px;
-    width: calc(98.66%);
-    margin: 16px auto;
-    background: white;
+  .playitem {
+  display: block;
+  padding: 2% 4% 2% 4%;
+  border-bottom: 1px solid #db4f4f;
   }
 
-  paper-menu {
-    padding: 0px;
-    background: #424242;
+
+.active {
+  background-color: white !important;
+}
+
+
+
+.active h2 {
+  color: black;
+  display: block;
+  font-weight: 600;
+  white-space: normal;
+  line-height: 90%;
+  margin-bottom: -10px;
+
+    }
+
+.playitem .active .plays {
+/*  color: #A63B3C;
+*/
+  color: black;
+  opacity: 0.4;
+
   }
+
+
+
+.active h1 {
+  color: #e55253;
+  display: block;
+  font-weight: 600;
+  white-space: normal;
+  line-height: 90%;
+  }
+
+
+
+.black {
+  color: black;
+}
+
+.red {
+  color: #e55253;
+}
+
+
+  h2 {
+  color: white;
+  white-space: normal;
+  display: block;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  line-height: 90%;
+  font-weight: 400;
+  width: 85%;
+  font-size: 1em;
+}
+
+
+h1 {
+  color: black;
+  display: block;
+  font-weight: 400;
+  line-height: 90%;
+  width: 85%;
+}
 
   </style>
   <template>
@@ -66,31 +138,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- <h2>{{currenttrack}}</h2> -->
 
-
-      <paper-menu on-iron-select="chooseclip" id="menuke" selected="{{currenttrack}}">
-
+      <iron-selector selected="{{currenttrack}}" on-iron-select="chooseclip" id="menuke" selected-class="active" attr-for-selected="id">
+        
+      
       <template is="dom-repeat" items="{{myplaylist}}">
-        <paper-item id="{{item.youtube}}">
-          <paper-material>
-            <div class="horizontal layout">
-              <div class="thumb">
+            
+            <div class="horizontal layout playitem" id="{{item.youtube}}">
+              <div class="vertical layout center center-justified">
                 <img src="{{item.image}}" class="thumb">
               </div>
               <div class="content horizontal layout flex">
                 <div class="flex">
-                  <h1>{{item.songtitle}}</h1>
-                  <h3>{{item.artist}}</h3>
+                  <h2>{{item.songtitle}}</h2>
+                  <h1>{{item.artist}}</h1>
+                  <!-- <p><h3>{{item.playtime}}</h3></p> -->
                 </div>
               </div>
             </div>
-          </paper-material>
-        <!-- <kf-listitem spotifyurl="[[item.spotify.external_urls.spotify]]" songtitle="[[item.title]]" artist="[[item.artist]]" image="[[item.image]]"></kf-listitem> -->
-        </paper-item>
+        
       </template>
 
-      </paper-menu>
-
-      </iron-menu>
+      </iron-selector>
 
       <iron-signals on-iron-signal-changechannel="changechannel"></iron-signals>
       <iron-signals on-iron-signal-clipstatechanged="clipstatechanged"></iron-signals>
@@ -132,16 +200,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     },
 
+    formatTime: function(){
+      this.playTime = moment(this.timePlayed).format('dddd D MMMM, HH:mm');
+    },
+
       clipstatechanged: function(e, detail){
         //console.log('clip changed state: ', e, detail);
         if(detail==0){
           //console.log('liedje is gedaan, speel volgende');
           //this.fire('iron-signal', {name: 'nexttrack'});
-          if(this.currenttrack>=1){
-            this.currenttrack--;
-          } else {
-            this.currenttrack = 0;
-          }
+          this.$.menuke.selectPrevious();
         }
       },
 
@@ -177,13 +245,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           } else {
             this.image = this.items[i].image;
           };
+
+
+          this.playTime = moment(this.items[i].timestamp).format('dddd D MMMM, HH:mm');
+
           myplaylist.push({  'songtitle': this.items[i].title,
                             'artist': this.items[i].artist,
                             'image': this.image,
                             'unixtimestamp': this.items[i].unixtimestamp,
                             'spotify': this.items[i].spotify, 
                             'firebasekey': this.items[i].__firebaseKey__,
-                            'youtube': this.items[i].videoid
+                            'youtube': this.items[i].videoid,
+                            'playtime': this.playTime
           });
         };
         //console.log('data changed');

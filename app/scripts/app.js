@@ -30,6 +30,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     app.$.radioplayer.youtubeid = e.detail.msg;
   });
 
+
+  app.currentchannel = function(e, detail){
+    app.radiostation = detail;
+  };
   
 
   // See https://github.com/Polymer/polymer/issues/1381

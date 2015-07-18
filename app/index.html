@@ -28,6 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Tile color for Win8 -->
   <meta name="msapplication-TileColor" content="#3372DF">
 
+
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="pirad.io">
@@ -65,27 +66,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <!-- force-Narrow -->
       <div drawer>
 
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">station</span>
-        </paper-toolbar>
 
         <!-- Drawer Content -->
-
+        
           <kf-radiolist id="radioplayer"></kf-radiolist>
+        
           <!-- youtube player -->
 
       </div>
       <paper-header-panel main mode="seamed">
+            <iron-signals on-iron-signal-currentchannel="currentchannel"></iron-signals>
 
         <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
-          <span class="flex">
-            pirad.io
-          </span>
-
-
+        <paper-toolbar id="mainToolbar" class="paper-header">
+          <paper-icon-button id="paperToggle" style="color: white;" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <span class="flex"></span>
+          <div class="stationtitle">{{radiostation}}</div>
         </paper-toolbar>
 
         <!-- Main Content -->

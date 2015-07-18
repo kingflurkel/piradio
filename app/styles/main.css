@@ -8,14 +8,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 */
 
 body {
-  background: #424242;
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333;
+  background-color: #e55253;
+  font-family: "Lato", sans-serif;
+  letter-spacing: normal;
+  text-transform: uppercase;
 }
 
 .heroimage {
-	width: 80px;
-	height: 80px;
+	height: 75px;
+	margin-top: 20px;
+}
+
+.drawerHead {
+	background-color: #444444;
+}
+
+
+
+.brand {
+	width: 50%;
+	margin-bottom: 20px;
+}
+
+.stationtitle {
+	color: white;
+	font-size: 1rem;
+}
+
+kf-radiolist {
+	height: 100%;
+}
+
+.red {
+  color: #e55253;
+}
+
+
+.tall img {
+	height: 60px;
 }
 
 .completeCenter {

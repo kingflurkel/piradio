@@ -12,6 +12,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
 <link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<script src="../../bower_components/momentjs/moment.js"></script>
+<script src="../../bower_components/momentjs/locale/nl.js"></script>
 
 <dom-module id="kf-listitem">
   <style>
@@ -66,6 +68,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div class="flex">
                 <h1>{{songtitle}}</h1>
                 <h3>{{artist}}</h3>
+                <p>{{playTime}}</p>
             </div>
             <div class="vertical layout end">
               <paper-icon-button icon="av:play-arrow" on-click="youtube"></paper-icon-button>
@@ -114,6 +117,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ajaxResponse: {
         observer: 'response'
+      },
+
+      timePlayed: {
+        type: Number,
+        observer: 'formatTime'
       }
     },
 
@@ -123,6 +131,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     setID: function(e){
       this.id = e.detail.msg;
+    },
+
+    formatTime: function(){
+      this.playTime = moment(this.timePlayed).format('dddd D MMMM, HH:mm');
     },
 
     findYoutube: function(){

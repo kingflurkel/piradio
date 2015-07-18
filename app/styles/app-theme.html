@@ -22,23 +22,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   /* Application theme */
 
   :root {
-    --dark-primary-color: #3A6682;
-    --default-primary-color: #3A6682;
+    --dark-primary-color: #333333;
+    --default-primary-color: #333333;
     --light-primary-color: #BCBCBC;
     --text-primary-color: #333333; /*text/icons*/
-    --accent-color: #3A6682;
-    --primary-background-color: #3A6682;
+    --accent-color: #333333;
+    --primary-background-color: #333333;
     --primary-text-color: #333333;
     --secondary-text-color: #ffffff;
     --disabled-text-color: #eeeeee;
     --divider-color: #F4A96F;
 
+    
+
     /* Components */
 
     /* paper-drawer-panel */
     --drawer-menu-color: #B0662B;
-    --drawer-border-color: 1px solid #ccc;
-    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+    --drawer-border-color: 0px solid #444444;
+    --drawer-toolbar-border-color: 0px solid rgba(0, 0, 0, 0.22);
 
     /* paper-menu */
     --paper-menu-background-color: #fff;
@@ -47,11 +49,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   /* General styles */
 
+
   #drawerToolbar {
     color: var(--secondary-text-color);
     background-color: var(--drawer-menu-color);
     border-bottom: var(--drawer-toolbar-border-color);
     height: 64px;
+  }
+
+  paper-icon-button {
+    color:white;
   }
 
   paper-material {
@@ -84,11 +91,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     -ms-flex-align: center;
     -webkit-align-items: center;
     align-items: center;
-    font-family: 'Roboto', 'Noto', sans-serif;
+    font-family: 'Lato', 'Noto', sans-serif;
+    font-weight: 200;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     font-size: 14px;
-    font-weight: 400;
     line-height: 24px;
     min-height: 48px;
     padding: 0 16px;

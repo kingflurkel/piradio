@@ -9,20 +9,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 
 <dom-module id="kf-radiolist">
   <style>
     :host {
       display: block;
+      font-family: "Lato", sans-serif !important;
+      font-weight: 200;
+      font-size: 16px;
     }
+
     paper-menu iron-icon {
     margin-right: 33px;
     opacity: 0.54;
   }
 
+  .list {
+    background-color: #444444;
+    height: 80%;
+    margin-top: 20px;
+  }
+
+  .radiostation {
+    color: white;
+    height: 48px;
+    padding: 0% 10% 0% 15%;
+    font-size: 14px;
+  }
+
+  .stationname {
+    margin-left: 10px;
+
+  }
+
   .paper-menu > .iron-selected {
     color: var(--default-primary-color);
   }
+
+  #player {
+    height: 170px;
+    width: 255px;
+  }
+
+  paper-scroll-header-panel {
+    height: 65%;
+    background-color: #444;
+  }
+
 
   paper-menu a {
     text-decoration: none;
@@ -45,6 +79,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     min-height: 48px;
     padding: 0 16px;
   }
+
+
+.heroimage {
+  height: 75px;
+  margin-top: 20px;
+}
+
+.drawerHead {
+  background-color: #444444;
+}
+
+.active {
+  font-weight: 800;
+}
+
+.brand {
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.stationtitle {
+  color: white;
+  font-size: 1rem;
+}
   </style>
   <template>
 
@@ -59,23 +117,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-firebase-value="prepare"
       location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
 
-    <paper-menu class="list" on-iron-select="test" selected="0">
+ <div class="vertical layout center drawerHead">
+          <img src="/images/heroimage.svg" class="heroimage">
+          <img src="/images/piradio.svg" class="brand">
+        </div>
+<paper-scroll-header-panel>
+        <!-- Drawer Toolbar -->
+    
+
+         
+
+      <div class="vertical layout list">
+    <iron-selector class="list" on-iron-select="test" selected="0" selected-class="active">
 
               <template is="dom-repeat" items="{{radios}}">
 
-             
-                <paper-item id="{{item.key}}" on-click=""><iron-icon src="{{item.image}}"></iron-icon>
-                <span>{{item.name}}</span></paper-item>
+              
+                <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation">
+                  <iron-icon src="{{item.image}}"></iron-icon>
+                  <span class="stationname">{{item.name}}</span>
+                </div>
                 
 
               </template>
 
-              </paper-menu>
+             
 
-              
+              </iron-selector>
 
-          </paper-menu>
+              </div>
+              </paper-scroll-header-panel>
+
+          <span class="flex"></span>
           <div id="player"></div>
+          </div>
   </template>
 </dom-module>
 <script>
@@ -103,6 +178,7 @@ function onPlayerReady(event) {
     test: function(e, detail, sender){
       //console.log('tessssst', e, detail.item.id, sender);
       this.fire('iron-signal', {name: 'changechannel', data: detail.item.id});
+      this.fire('iron-signal', {name: 'currentchannel', data: detail.item.station});
     },
     ready: function(){
        this.youtubeid = 'yQVxUICOCWA';
