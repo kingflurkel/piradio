@@ -35,19 +35,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
 
- <div class="vertical layout center drawerHead">
+ 
+<paper-scroll-header-panel>
+        <!-- Drawer Toolbar -->
+        <paper-toolbar>
+    <div class="vertical layout center">
         <p class="stationname">{{currenttrack}}</p>
           <img src="/images/heroimage.svg" class="heroimage">
           <img src="/images/piradio.svg" class="brand">
         </div>
-<paper-scroll-header-panel>
-        <!-- Drawer Toolbar -->
-    
-
+</paper-toolbar>
          <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
 
       <div class="vertical layout">
-    <iron-selector class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
+    <iron-selector  class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
 
               <template is="dom-repeat" items="{{radios}}">
 
@@ -65,10 +66,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </iron-selector>
 
               </div>
-              </paper-scroll-header-panel>
 
-          <span class="flex"></span>
-          <div id="player"></div>
+         
+              </paper-scroll-header-panel>
+ <div id="player"></div>
+          
           </div>
   </template>
 </dom-module>

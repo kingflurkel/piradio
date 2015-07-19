@@ -34,15 +34,14 @@
   }
 
   #player {
-    height: 170px;
-    width: 255px;
+    height: 20vh;
     background-color: #444;
   }
 
-  paper-scroll-header-panel {
-    height: 50%;
 
-    margin-top: 20px;
+
+  paper-scroll-header-panel {
+    height: 80vh;
     background-color: #444;
   }
 
