@@ -20,13 +20,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
   <!-- Chrome for Android theme color -->
-  <meta name="theme-color" content="#303F9F">
+  <meta name="theme-color" content="#333333">
 
   <!-- Web Application Manifest -->
   <link rel="manifest" href="manifest.json">
 
   <!-- Tile color for Win8 -->
-  <meta name="msapplication-TileColor" content="#3372DF">
+  <meta name="msapplication-TileColor" content="black">
 
 
   <!-- Add to homescreen for Chrome on Android -->
@@ -62,7 +62,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
-    <paper-drawer-panel id="paperDrawerPanel" force-narrow>
+
+
+    <paper-drawer-panel id="paperDrawerPanel" >
     <!-- force-Narrow -->
       <div drawer class="nodrawer">
 
@@ -72,16 +74,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <kf-radiolist id="radioplayer"></kf-radiolist>
         
           <!-- youtube player -->
+          
 
       </div>
       <paper-header-panel main mode="seamed">
             <iron-signals on-iron-signal-currentchannel="currentchannel"></iron-signals>
+
+            <iron-signals on-iron-signal-playpause="playpause"></iron-signals>
 
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar" class="paper-header">
           <paper-icon-button id="paperToggle" style="color: white;" icon="menu" paper-drawer-toggle></paper-icon-button>
           <span class="flex"></span>
           <div class="stationtitle">{{radiostation}}</div>
+          <kf-controls></kf-controls>
+
         </paper-toolbar>
 
         <!-- Main Content -->

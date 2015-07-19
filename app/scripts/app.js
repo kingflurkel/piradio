@@ -23,6 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
+    console.log('Hallo Leeloo!!');
   });
 
   app.addEventListener('changeyoutubeclip', function(e){
@@ -30,10 +31,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     app.$.radioplayer.youtubeid = e.detail.msg;
   });
 
+  app.addEventListener('values-changed', function() {
+    console.log('Values changed!');
+  });
+
 
   app.currentchannel = function(e, detail){
     app.radiostation = detail;
+    //app.$.globals.radiostation = detail;
   };
+
+  app.startYoutube = function(){
+    this.fire('iron-signal', {name: 'startyoutube', data: 1});
+  },
+
+  app.pauseYoutube = function(){
+    this.fire('iron-signal', {name: 'startyoutube', data: 0});
+  },
   
 
   // See https://github.com/Polymer/polymer/issues/1381

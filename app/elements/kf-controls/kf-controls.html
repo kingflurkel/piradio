@@ -1,0 +1,69 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+<link rel="import" href="../../bower_components/paper-item-button/paper-item-button.html">
+
+<dom-module id="kf-controls">
+  <style>
+    :host {
+      display: block;
+    }
+
+    paper-icon-button {
+      color: white;
+    }
+
+  </style>
+  <template>
+    <iron-signals on-iron-signal-clipstatechanged="startyoutube"></iron-signals>
+
+          <template is="dom-if" if="{{!state}}">
+          <paper-icon-button icon="av:play-arrow" on-click="start"></paper-icon-button>
+          </template>
+          <template is="dom-if" if="{{state}}">
+          <paper-icon-button icon="av:pause" on-click="pause"></paper-icon-button>
+          </template>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'kf-controls',
+
+    properties: {
+      foo: {
+        type: String,
+        value: 'bar',
+        notify: true
+      }
+    },
+
+    start: function(){
+      this.fire('iron-signal', {name: 'startyoutube', data: 1});
+    },
+
+    pause: function(){
+      this.fire('iron-signal', {name: 'startyoutube', data: 0 });
+    },
+
+    startyoutube: function(e, detail){
+      console.log(detail);
+      if(detail==1){
+      this.state = true;
+    } else {
+      this.state = false;
+    }
+    }
+
+  });
+})();
+</script>
