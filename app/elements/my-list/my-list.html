@@ -174,7 +174,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           };
 
 
-          this.playTime = moment(this.items[i].timestamp).format('dddd D MMMM, HH:mm');
+          //this.playTime = moment(this.items[i].timestamp).format('dddd D MMMM, HH:mm');
 
           myplaylist.push({  'songtitle': this.items[i].title,
                             'artist': this.items[i].artist,
@@ -183,7 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             'spotify': this.items[i].spotify, 
                             'firebasekey': this.items[i].__firebaseKey__,
                             'youtube': this.items[i].videoid,
-                            'playtime': this.playTime
+                            'playtime': moment.unix(parseInt(this.items[i].unixtimestamp)).format('dddd D MMMM, HH:mm')
           });
         };
         //console.log('data changed');
