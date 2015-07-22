@@ -116,7 +116,7 @@ function onPlayerReady(event) {
       for (var i = this.items.length - 1; i >= 0; i--) {
         radios.push({  'name': this.items[i].name,
                             'key': this.items[i].__firebaseKey__,
-                            'image': '../../images/'+this.items[i].__firebaseKey__+'.png'
+                            'image': this.items[i].icon || '../../images/'+this.items[i].__firebaseKey__+'.png'
         });
       };
       this.radios = radios;
