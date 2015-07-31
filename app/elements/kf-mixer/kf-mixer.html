@@ -1,0 +1,126 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../kf-mixitem/kf-mixitem.html">
+
+<dom-module id="kf-mixer">
+  <style>
+    :host {
+      display: block;
+    }
+
+    paper-slider {
+  --paper-slider-bar-color: #E7514F;
+  --paper-slider-active-color: #fff;
+  --paper-slider-knob-color: #fff;
+  --paper-slider-pin-color: #fff;
+  --paper-slider-font-color: #fff;
+  --paper-slider-secondary-color: #fff;
+  --paper-slider-disabled-active-color: #AF3C3A;
+  --paper-slider-disabled-secondary-color: #AF3C3A;
+}
+
+.radiostation {
+    color: white;
+    height: 48px;
+    font-size: 14px;
+  }
+
+  </style>
+  <template>
+
+    <firebase-collection
+      id="fb" 
+      order-by-child="name"
+      data="{{items}}"
+      on-firebase-value="prepare"
+      location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
+
+    <h1>Mix your own station</h1>
+
+    <p>Select which stations you would like to mix</p>
+
+    <div class="vertical layout">
+    
+    <template is="dom-repeat" items="{{radios}}">
+   
+      <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation horizontal layout">
+        <iron-icon src="{{item.image}}"></iron-icon>
+        <span class="stationname">{{item.name}}</span>
+        <span class="flex"></span>
+        <paper-slider station="{{item.key}}" min="0" max="100" on-value-changed="logValue"></paper-slider>
+      </div>
+                
+    </template>
+
+    </div>
+
+    <button on-click="sendVals">send vals</button>
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'kf-mixer',
+
+    properties: {
+      foo: {
+        type: String,
+        value: 'bar',
+        notify: true
+      },
+
+      mixsettings: {
+        type: Array,
+        value: []
+      }
+    },
+
+    prepare: function(){
+      //console.log('yoooo');
+      var radios = [];
+      for (var i = this.items.length - 1; i >= 0; i--) {
+        radios.push({  'name': this.items[i].name,
+                            'key': this.items[i].__firebaseKey__,
+                            'image': this.items[i].icon || '../../images/'+this.items[i].__firebaseKey__+'.png'
+        });
+        this.mixsettings.push({'station': this.items[i].__firebaseKey__, 'mixval': 0});
+      };
+      this.radios = radios;
+
+      //this.globals.radios = radios;
+    },
+
+    sendVals: function(){
+      var radios = this.radios;
+      for (var i = radios.length - 1; i >= 0; i--) {
+        console.log('mixing values', radios[i]);
+      };
+      
+    },
+
+    logValue: function(e, detail, sender){
+      //console.log(e.target.station, detail);
+      //console.log(JSON.stringify(this.mixsettings));
+      //console.log(this.mixsettings.keys("station").indexOf(e.target.station));
+      for (var i = this.mixsettings.length - 1; i >= 0; i--) {
+          var mixitem = this.mixsettings[i];
+          //console.log('got someting', mixitem.station);
+          if(mixitem.station == e.target.station){
+            console.log('match');
+          }
+      };
+    }
+  });
+})();
+</script>

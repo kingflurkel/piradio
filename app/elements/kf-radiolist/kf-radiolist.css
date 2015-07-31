@@ -24,6 +24,11 @@
     font-size: 14px;
   }
 
+  .radiostation a {
+    color: white;
+    text-decoration: none;
+  }
+
   .stationname {
     margin-left: 10px;
 

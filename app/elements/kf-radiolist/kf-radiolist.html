@@ -46,6 +46,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
          <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
 
       <div class="vertical layout">
+
+        <div id="" on-click="" class="radiostation">
+                  <iron-icon src=""></iron-icon>
+                  <a href="/mix"><span class="stationname">piradio fm</span></a>
+                </div>
+
     <iron-selector class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
 
               <template is="dom-repeat" items="{{radios}}">
@@ -53,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               
                 <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation">
                   <iron-icon src="{{item.image}}"></iron-icon>
-                  <span class="stationname">{{item.name}}</span>
+                  <a href="/"><span class="stationname">{{item.name}}</span></a>
                 </div>
                 
 
