@@ -1,5 +1,6 @@
 ## Piradio frontend
 
+Find us on irc / freenode / #piradio
 
 ### Install dependencies
 
