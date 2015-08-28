@@ -190,20 +190,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         //console.log(myplaylist);
         this.myplaylist = myplaylist;
 
+        if (myplaylist && myplaylist.length > 0){
+
         console.log('currenttrack', this.currenttrack, 'first track: ',myplaylist[0].youtube);
 
         if(this.firstuse){
 
-          this.currenttrack = myplaylist[0].youtube;
-          this.lastplayedtrack = myplaylist[0].youtube;
-          //console.log('startup: ', this.currenttrack);
-          this.fire('iron-signal', {name: 'changeyoutubeclip', data: this.currenttrack});
-          if(this.currenttrack!=undefined){
-            this.firstuse = false;
-            this.fire('iron-signal', {name: 'createplayer', data: this.currenttrack});
+            this.currenttrack = myplaylist[0].youtube;
+            this.lastplayedtrack = myplaylist[0].youtube;
+            //console.log('startup: ', this.currenttrack);
+            this.fire('iron-signal', {name: 'changeyoutubeclip', data: this.currenttrack});
+            if(this.currenttrack!=undefined){
+              this.firstuse = false;
+              this.fire('iron-signal', {name: 'createplayer', data: this.currenttrack});
+            };
           };
-        };
-
+        }
         //console.log('currenttrack now', this.currenttrack);
 
         

@@ -57,11 +57,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <iron-icon src="{{item.image}}"></iron-icon>
         <span class="stationname">{{item.name}}</span>
         <span class="flex"></span>
-        <paper-slider station="{{item.key}}" min="0" max="100" on-value-changed="logValue"></paper-slider>
+        <paper-slider value="{{item.sliderval}}" min="0" max="100" on-value-changed="sliderChanged"></paper-slider>
+        <span>{{item.sliderval}}</span>
       </div>
                 
     </template>
 
+    <h2>Your playlist</h2>
+
+  <template is="dom-repeat" items="{{playlist}}">
+   
+      <div id="{{item.key}}" station="{{item.title}}" on-click="" class="horizontal layout">
+        <iron-icon src="{{item.image}}"></iron-icon>
+        <span class="stationname">{{item.title}}</span>
+        <span class="flex"></span>
+      </div>
+                
+    </template>
     </div>
 
     <button on-click="sendVals">send vals</button>
@@ -74,33 +86,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'kf-mixer',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+      radios: {
+        type: Array
       },
-
-      mixsettings: {
+      playlist: {
         type: Array,
-        value: []
+        value: [{title:"a"}],
+        notify: true
       }
     },
 
-    prepare: function(){
-      //console.log('yoooo');
-      var radios = [];
-      for (var i = this.items.length - 1; i >= 0; i--) {
-        radios.push({  'name': this.items[i].name,
-                            'key': this.items[i].__firebaseKey__,
-                            'image': this.items[i].icon || '../../images/'+this.items[i].__firebaseKey__+'.png'
-        });
-        this.mixsettings.push({'station': this.items[i].__firebaseKey__, 'mixval': 0});
-      };
-      this.radios = radios;
+    loaded: function(){
 
-      //this.globals.radios = radios;
     },
-
+    prepare: function(){
+      if (!this.radios){
+        var r = [];
+        for (var i = this.items.length - 1; i >= 0; i--) {
+          var radio = {  'name': this.items[i].name,
+                              'key': this.items[i].__firebaseKey__,
+                              'image': this.items[i].icon || '../../images/'+this.items[i].__firebaseKey__+'.png',
+                              'sliderval': 0
+          };
+          r.push(radio);
+        };
+         this.set('radios', r);
+        console.log("Prepared");
+      }
+    },
+    ready: function(){
+      console.log(this.radios);
+    },
+    sliderChanged: function(e, detail, sender){
+      console.log("Slider changed");
+      this.push('playlist',{title:"Titel"});
+//      this.set('playlist', this.playlist);
+//       this.set('playlist', this.playlist);
+//      console.log("detail=",detail);
+       //var model = e.model;
+        //model.set('item.sliderval', detail.value);
+    },
     sendVals: function(){
       var radios = this.radios;
       for (var i = radios.length - 1; i >= 0; i--) {
@@ -109,18 +134,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
     },
 
-    logValue: function(e, detail, sender){
-      //console.log(e.target.station, detail);
-      //console.log(JSON.stringify(this.mixsettings));
-      //console.log(this.mixsettings.keys("station").indexOf(e.target.station));
-      for (var i = this.mixsettings.length - 1; i >= 0; i--) {
-          var mixitem = this.mixsettings[i];
-          //console.log('got someting', mixitem.station);
-          if(mixitem.station == e.target.station){
-            console.log('match');
-          }
-      };
-    }
   });
 })();
 </script>
