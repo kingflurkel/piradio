@@ -20,10 +20,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
 
     <firebase-collection
-      id="fb" 
-      order-by-child="unixtimestamp"
+      id="fb"
       data="{{items}}"
-      on-firebase-value="dataChanged"></firebase-collection>
+      limit-to-last="2"
+      on-firebase-value="dataChanged"
+      ></firebase-collection>
 
        <kf-globals data="{{global1}}" id="globals01"></kf-globals>
 
@@ -158,34 +159,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       setRadiostation: function(){
         var now = new Date();
-        var fullDaysSinceEpoch = Math.floor(now / 8.64e7);
-        this.$.fb.location = 'https://popping-heat-1762.firebaseio.com/radioplus/playlists/'+this.radiostation+'/'+fullDaysSinceEpoch;
+        var fullDaysSinceEpoch = Math.floor(now / 8.64e7)-2;
+        this.$.fb.location = 'https://popping-heat-1762.firebaseio.com/radioplus/playlists/'+this.radiostation;
       },
 
       dataChanged: function(){
         //this.myplaylist = [];
         var myplaylist = [];
-        for (var i = this.items.length - 1; i >= 0; i--) {
-          //console.log(this.items[i]);
-          if(!this.items[i].image){
-            this.image = "images/imagenotfound.png";
-          } else {
-            this.image = this.items[i].image;
+        for (var day = this.items.length-1; day >= 0; day--) {
+          for (var songkey in this.items[day]) {
+            var song = this.items[day][songkey];
+
+            if (!song || !song.unixtimestamp){
+              continue;
+            }
+
+
+
+            if(!song.image){
+              this.image = "images/imagenotfound.png";
+            } else {
+              this.image = song.image;
+            };
+
+            myplaylist.push({  'songtitle': song.title,
+                              'artist': song.artist,
+                              'image': this.image,
+                              'unixtimestamp': song.unixtimestamp,
+                              'spotifyurl': song.spotifyurl, 
+                              'youtube': song.videoid,
+                              'playtime': moment.unix(parseInt(song.unixtimestamp)).format('dddd D MMMM, HH:mm')
+            });
           };
-
-
-          //this.playTime = moment(this.items[i].timestamp).format('dddd D MMMM, HH:mm');
-
-          myplaylist.push({  'songtitle': this.items[i].title,
-                            'artist': this.items[i].artist,
-                            'image': this.image,
-                            'unixtimestamp': this.items[i].unixtimestamp,
-                            'spotify': this.items[i].spotify, 
-                            'firebasekey': this.items[i].__firebaseKey__,
-                            'youtube': this.items[i].videoid,
-                            'playtime': moment.unix(parseInt(this.items[i].unixtimestamp)).format('dddd D MMMM, HH:mm')
-          });
         };
+        myplaylist.sort(function(a, b) {
+          return b.unixtimestamp - a.unixtimestamp;
+        });
         //console.log('data changed');
         //console.log(myplaylist);
         this.myplaylist = myplaylist;
