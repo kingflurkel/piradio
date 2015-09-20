@@ -91,7 +91,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
       playlist: {
         type: Array,
-        value: [{title:"a"}],
+        value: [{title:'a'}],
         notify: true
       }
     },
@@ -109,17 +109,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                               'sliderval': 0
           };
           r.push(radio);
-        };
+        }
          this.set('radios', r);
-        console.log("Prepared");
+        console.log('Prepared');
       }
     },
     ready: function(){
       console.log(this.radios);
     },
     sliderChanged: function(e, detail, sender){
-      console.log("Slider changed");
-      this.push('playlist',{title:"Titel"});
+      console.log('Slider changed');
+      this.push('playlist',{title:'Titel'});
 //      this.set('playlist', this.playlist);
 //       this.set('playlist', this.playlist);
 //      console.log("detail=",detail);

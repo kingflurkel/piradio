@@ -10,7 +10,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
-<link rel="import" href="../../bower_components/paper-item-button/paper-item-button.html">
 
 <dom-module id="kf-controls">
   <style>
@@ -25,13 +24,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <iron-signals on-iron-signal-clipstatechanged="startyoutube"></iron-signals>
-
-          <template is="dom-if" if="{{!state}}">
-          <paper-icon-button icon="av:play-arrow" on-click="start"></paper-icon-button>
-          </template>
-          <template is="dom-if" if="{{state}}">
-          <paper-icon-button icon="av:pause" on-click="pause"></paper-icon-button>
-          </template>
+    <template is="dom-if" if="{{!state}}">    
+      <paper-icon-button on-click="start"><iron-icon icon="av:play-arrow"></iron-icon></paper-icon-button>
+    </template>
+    <template is="dom-if" if="{{state}}">
+      <paper-icon-button on-click="pause"><iron-icon icon="av:pause"></iron-icon></paper-icon-button>
+    </template>
   </template>
 </dom-module>
 <script>
@@ -40,10 +38,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'kf-controls',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
+      state: {
+        type: Number,
+        value: false
       }
     },
 
@@ -56,8 +53,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     startyoutube: function(e, detail){
-      console.log(detail);
-      if(detail==1){
+      console.log('clipstatechanged event received detail='+detail);
+      if(detail===1){
       this.state = true;
     } else {
       this.state = false;

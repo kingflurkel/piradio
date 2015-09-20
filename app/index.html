@@ -46,8 +46,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild-->
 
-  <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <!-- build:js ../bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
 
 
@@ -99,7 +99,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
                 
-                <my-list radiostation="{{radiostationid}}" on-changeclip="changeclip"></my-list>
+                <kf-songlist radiostation="{{radiostationid}}" on-changeclip="changeclip"></kf-songlist>
 
             </section>
 

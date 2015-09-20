@@ -17,18 +17,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var vars = Object.create(Polymer.Base);
         var commondata = {
             get loader() {
-                return vars.get("loader");
+                return vars.get('loader');
             },
             set loader(v) {
-                return setGlob("loader", v);
+                return setGlob('loader', v);
             }
         };
 
         function setGlob(path, v) {
-            if (vars.get(path) != v) {
+            if (vars.get(path) !== v) {
                 vars.set(path, v);
                 for (var i = 0; i < instances.length; i++) {
-                    instances[i].notifyPath("data." + path, v);
+                    instances[i].notifyPath('data.' + path, v);
                 }
             }
             return v;

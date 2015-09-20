@@ -13,18 +13,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../kf-globals/kf-globals.html">
 
-
 <dom-module id="kf-radiolist">
-   <link rel="import" type="css" href="kf-radiolist.css">
+  <link rel="import" type="css" href="kf-radiolist.css">
   <template>
 
- 
+    <google-youtube-api on-api-load="loaded"></google-youtube-api>
 
-  <google-youtube-api on-api-load="loaded"></google-youtube-api>
-
-  <iron-signals on-iron-signal-changeyoutubeclip="changeyoutubeclip"></iron-signals>
-  <iron-signals on-iron-signal-startyoutube="startyoutube"></iron-signals>
-  <iron-signals on-iron-signal-createplayer="createplayer"></iron-signals>
+    <iron-signals on-iron-signal-changeyoutubeclip="changeyoutubeclip"></iron-signals>
+    <iron-signals on-iron-signal-startyoutube="startyoutube"></iron-signals>
+    <iron-signals on-iron-signal-createplayer="createplayer"></iron-signals>
 
     <firebase-collection
       id="fb" 
@@ -33,48 +30,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-firebase-value="prepare"
       location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
 
+    <div class="vertical layout center drawerHead">
+      <p class="stationname">{{currenttrack}}</p>
+      <img src="/images/heroimage.svg" class="heroimage"></div>
+    <paper-scroll-header-panel>
+      <!-- Drawer Toolbar -->
 
-
- <div class="vertical layout center drawerHead">
-        <p class="stationname">{{currenttrack}}</p>
-          <img src="/images/heroimage.svg" class="heroimage">
-        </div>
-<paper-scroll-header-panel>
-        <!-- Drawer Toolbar -->
-    
-
-         <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
+      <iron-localstorage name="piradio" value="{{radiostationid}}"></iron-localstorage>
 
       <div class="vertical layout">
 
         <div id="" on-click="" class="radiostation">
-                  <iron-icon src=""></iron-icon>
-                  <a href="/mix"><span class="stationname">piradio fm</span></a>
-                </div>
+          <iron-icon src=""></iron-icon>
+          <a href="/mix">
+            <span class="stationname">piradio fm</span>
+          </a>
+        </div>
 
-    <iron-selector class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
+        <iron-selector class="flex" on-iron-select="test" attr-for-selection="id" selected="{{radiostationid}}" selected-class="active">
 
-              <template is="dom-repeat" items="{{radios}}">
+          <template is="dom-repeat" items="{{radios}}">
 
-              
-                <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation">
-                  <iron-icon src="{{item.image}}"></iron-icon>
-                  <a href="/"><span class="stationname">{{item.name}}</span></a>
-                </div>
-                
+            <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation">
+              <iron-icon src="{{item.image}}"></iron-icon>
+              <a href="/">
+                <span class="stationname">{{item.name}}</span>
+              </a>
+            </div>
 
-              </template>
+          </template>
 
-             
+        </iron-selector>
 
-              </iron-selector>
-
-              </div><span class="flex"></span>
-          <div id="player"></div>
-              </paper-scroll-header-panel>
-
-          
-          </div>
+      </div>
+      <span class="flex"></span>
+      <div id="player"></div>
+    </paper-scroll-header-panel>
   </template>
 </dom-module>
 <script>
@@ -88,11 +79,6 @@ function onPlayerReady(event) {
     is: 'kf-radiolist',
 
     properties: {
-      foo: {
-        type: String,
-        value: 'bar',
-        notify: true
-      },
 
       youtubeid: {
         type: String,
@@ -143,7 +129,7 @@ function onPlayerReady(event) {
         });
       //console.log('Youtube api loaded');
       player.addEventListener('onStateChange', function(e, detail){
-        //console.log('player state changed: ', e, detail);
+        console.log('player state changed: ', e, detail);
         that.fire('iron-signal', {name: 'clipstatechanged', data: e.data});
       });
 
@@ -155,7 +141,7 @@ function onPlayerReady(event) {
 
     startyoutube: function(e, detail){
       console.log(detail);
-      if(detail==1){
+      if(detail===1){
       player.playVideo();
     } else {
       player.pauseVideo();
@@ -166,7 +152,9 @@ function onPlayerReady(event) {
 
     changeyoutubeclip: function(e, detail, sender){
       console.log('change youtube to ', detail);
-      player.loadVideoById({videoId:detail});
+      if (player){
+        player.loadVideoById({videoId:detail});
+      }
     }
     
   });
