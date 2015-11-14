@@ -63,6 +63,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 
     </template>
 
+    <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-private"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+
     <h2>Your playlist</h2>
 
   <template is="dom-repeat" items="{{playlist}}">
@@ -77,63 +79,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     <button on-click="sendVals">send vals</button>
+    <button on-click="loginToSpotify">Login to spotify</button>
 
   </template>
 </dom-module>
-<script>
-(function() {
-  Polymer({
-    is: 'kf-mixer',
-
-    properties: {
-      radios: {
-        type: Array
-      },
-      playlist: {
-        type: Array,
-        value: [{title:'a'}],
-        notify: true
-      }
-    },
-
-    loaded: function(){
-
-    },
-    prepare: function(){
-      if (!this.radios){
-        var r = [];
-        for (var i = this.items.length - 1; i >= 0; i--) {
-          var radio = {  'name': this.items[i].name,
-                              'key': this.items[i].__firebaseKey__,
-                              'image': this.items[i].icon || '../../images/'+this.items[i].__firebaseKey__+'.png',
-                              'sliderval': 0
-          };
-          r.push(radio);
-        }
-         this.set('radios', r);
-        console.log('Prepared');
-      }
-    },
-    ready: function(){
-      console.log(this.radios);
-    },
-    sliderChanged: function(e, detail, sender){
-      console.log('Slider changed');
-      this.push('playlist',{title:'Titel'});
-//      this.set('playlist', this.playlist);
-//       this.set('playlist', this.playlist);
-//      console.log("detail=",detail);
-       //var model = e.model;
-        //model.set('item.sliderval', detail.value);
-    },
-    sendVals: function(){
-      var radios = this.radios;
-      for (var i = radios.length - 1; i >= 0; i--) {
-        console.log('mixing values', radios[i]);
-      };
-      
-    },
-
-  });
-})();
-</script>
+<script src="./kf-mixer.js"></script>

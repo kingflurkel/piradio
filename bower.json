@@ -9,7 +9,8 @@
     "page": "visionmedia/page.js#~1.6.3",
     "firebase-element": "GoogleWebComponents/firebase-element#~1.0.2",
     "google-apis": "GoogleWebComponents/google-apis#~1.0.2",
-    "momentjs": "~2.10.3"
+    "momentjs": "~2.10.3",
+    "oauth-v2": "*"
   },
   "devDependencies": {}
 }
