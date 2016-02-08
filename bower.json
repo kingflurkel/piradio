@@ -10,7 +10,8 @@
     "firebase-element": "GoogleWebComponents/firebase-element#~1.0.2",
     "google-apis": "GoogleWebComponents/google-apis#~1.0.2",
     "momentjs": "~2.10.3",
-    "oauth-v2": "*"
+    "oauth-v2": "*",
+    "spotify-web-api-js": "^0.18.1"
   },
   "devDependencies": {}
 }

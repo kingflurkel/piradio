@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="../kf-mixitem/kf-mixitem.html">
-
+<script src="../../bower_components/spotify-web-api-js/src/spotify-web-api.js"></script>
 <dom-module id="kf-mixer">
   <style>
     :host {
@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-firebase-value="prepare"
       location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
 
-    <h1>Mix your own station</h1>
+    <h1>Mix your own playlist</h1>
 
     <p>Select which stations you would like to mix</p>
 
@@ -63,15 +63,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 
     </template>
 
-    <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-private"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+    <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-public"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+
+
+ <div class="radiostation horizontal layout">
+        <span class="stationname">Playlistlength</span>
+        <span class="flex"></span>
+        <paper-slider value="{{playlistlength}}" min="20" max="100"></paper-slider>        <span>{{playlistlength}}</span>
+      </div>
+
+  
 
     <h2>Your playlist</h2>
 
   <template is="dom-repeat" items="{{playlist}}">
    
-      <div id="{{item.key}}" station="{{item.title}}" on-click="" class="horizontal layout">
+      <div id="{{item.key}}" station="{{item.title}}" class="horizontal layout">
         <iron-icon src="{{item.image}}"></iron-icon>
-        <span class="stationname">{{item.title}}</span>
+        <span class="stationname">{{item.title}}</span> van
+        <span class="stationname">{{item.channelid}}</span>
         <span class="flex"></span>
       </div>
                 
@@ -83,4 +93,150 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </template>
 </dom-module>
-<script src="./kf-mixer.js"></script>
+<script>
+(function() {
+  Polymer({
+    is: 'kf-mixer',
+
+    properties: {
+      radios: {
+        type: Array
+      },
+      playlist: {
+        type: Array,
+        notify: true
+      },
+      playlistlength: {
+        type: Number,
+        observer: "_playlistlengthChanged"
+      }
+    },
+
+    loaded: function() {
+
+    },
+    prepare: function() {
+      if (!this.radios) {
+        var r = [];
+        for (var i = this.items.length - 1; i >= 0; i--) {
+          var radio = {
+            'name': this.items[i].name,
+            'key': this.items[i].__firebaseKey__,
+            'image': this.items[i].icon || '../../images/' + this.items[i].__firebaseKey__ + '.png',
+            'sliderval': 0
+          };
+          r.push(radio);
+        }
+        this.set('radios', r);
+        console.log('Prepared');
+        var self =this;
+        document.querySelector("#loginbox").addEventListener("response", function(e) {
+          console.log("Your spotify bearer token is" + e.detail["!/#access_token"]);
+          self.spotify_accesstoken= e.detail["!/#access_token"];
+        });
+      }
+    },
+    ready: function() {
+      console.log(this.radios);
+    },
+    loginToSpotify: function() {
+      this.$.loginbox.open();
+    },
+    sliderChanged: function(e, detail, sender) {
+      console.log('Slider changed for channel ' + e.model.item.key + ' to ' + detail.value);
+    },
+    _playlistlengthChanged: function(){
+      console.log('length of playlist',this.playlistlength);
+    },
+    makePlaylist: function(){
+        var playlistitems = [];
+        for(var i=0;i<this.playlist.length;i++){
+          var uri = "spotify:track:" + this.playlist[i].spotifyurl.split('/')[4]
+          playlistitems.push(uri);
+        }
+
+        var spotifyApi = new SpotifyWebApi();
+        spotifyApi.setAccessToken(this.spotify_accesstoken);
+        spotifyApi.createPlaylist(118357449,  {
+            'name': 'Piradio @ ' + new Date().toString(),
+            'public': true
+          })
+          .then(function(data) {
+            console.log('Created playlist!', data);
+            console.log('playlist id=', data.id)
+            console.log('playlist URIs', playlistitems);
+
+            spotifyApi.addTracksToPlaylist(118357449, data.id, playlistitems)
+              .then(function(data) {
+                console.log('Added ' + playlistitems.length + 'tracks to playlist!');
+              }, function(err) {
+                console.log(' addTracksToPlaylist Something went wrong!', err);
+              });
+
+
+
+          }, function(err) {
+            console.log('Something went wrong!', err);
+          });
+
+
+    },
+    sendVals: function() {
+      var self = this;
+      var currentday = Math.floor(Date.now() / 8.64e7);
+      console.log("Current day=" + currentday);
+
+      //var playlistlength = 20;
+
+      var totalweight = 0;
+      var radiocount = 0;
+      this.radios.map(function(radio) {
+        totalweight += radio.sliderval;
+        if (radio.sliderval > 0){
+          radiocount++;
+        }
+      });
+
+      this.playlist = [];      
+
+
+      this.radios.map(function(radio) {
+        if (radio.sliderval > 0) {
+          console.log('adding',radio.sliderval,'pct of ',radio.key); 
+          var list = new Firebase("https://popping-heat-1762.firebaseio.com/radioplus/playlists/" + radio.key + "/" + (currentday - 1));
+          list.once('value', function(snapshot) {
+
+            var requestedsongs = Math.floor(self.playlistlength * (radio.sliderval / totalweight));
+            console.log('adding',radio.sliderval,'pct of ',radio.key,'equals',requestedsongs,'of',self.playlistlength); 
+
+            var addedsongs = 0;
+            var channel_playlist = snapshot.val();
+            for (var index in channel_playlist) {
+              if (channel_playlist.hasOwnProperty(index)) {
+                if (addedsongs < requestedsongs) {
+                  var song = channel_playlist[index];
+                  if (song.spotifyurl){
+                    console.log(song);
+                    self.push('playlist', song);
+                    addedsongs++;
+                  }else{
+                    console.log('this song has no spotify URL');
+                  }
+                }
+              }
+            }
+
+            radiocount--;
+            if (radiocount==0){
+              console.log('last radio -> roll playlist of ',self.playlist.length,'songs');
+              self.makePlaylist();
+            }
+
+          });
+        }
+      });
+    },
+
+  });
+})();  
+</script>
