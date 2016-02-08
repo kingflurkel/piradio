@@ -45,51 +45,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       on-firebase-value="prepare"
       location="https://popping-heat-1762.firebaseio.com/radioplus/channels"></firebase-collection>
 
+    <iron-localstorage on-iron-localstorage-load
+="spotifytokenloaded" name="spotifytoken" value="{{spotify_accesstoken}}"></iron-localstorage>
+
     <h1>Mix your own playlist</h1>
 
     <p>Select which stations you would like to mix</p>
 
     <div class="vertical layout">
-    
-    <template is="dom-repeat" items="{{radios}}">
-   
-      <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation horizontal layout">
-        <iron-icon src="{{item.image}}"></iron-icon>
-        <span class="stationname">{{item.name}}</span>
-        <span class="flex"></span>
-        <paper-slider value="{{item.sliderval}}" min="0" max="100" on-value-changed="sliderChanged"></paper-slider>
-        <span>{{item.sliderval}}</span>
-      </div>
-                
-    </template>
 
-    <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-public"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+      <template is="dom-repeat" items="{{radios}}">
 
+        <div id="{{item.key}}" station="{{item.name}}" on-click="" class="radiostation horizontal layout">
+          <iron-icon src="{{item.image}}"></iron-icon>
+          <span class="stationname">{{item.name}}</span>
+          <span class="flex"></span>
+          <paper-slider value="{{item.sliderval}}" min="0" max="100" on-value-changed="sliderChanged"></paper-slider>
+          <span>{{item.sliderval}}</span>
+        </div>
 
- <div class="radiostation horizontal layout">
+      </template>
+
+      <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-public"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+
+      <div class="radiostation horizontal layout">
         <span class="stationname">Playlistlength</span>
         <span class="flex"></span>
-        <paper-slider value="{{playlistlength}}" min="20" max="100"></paper-slider>        <span>{{playlistlength}}</span>
+        <paper-slider value="{{playlistlength}}"  on-value-changed="sliderChanged" min="20" max="300"></paper-slider>
+        <span>{{playlistlength}}</span>
       </div>
 
-  
+      <h2>Your playlist</h2>
 
-    <h2>Your playlist</h2>
+      <template is="dom-repeat" items="{{playlist}}">
 
-  <template is="dom-repeat" items="{{playlist}}">
-   
-      <div id="{{item.key}}" station="{{item.title}}" class="horizontal layout">
-        <iron-icon src="{{item.image}}"></iron-icon>
-        <span class="stationname">{{item.title}}</span> van
-        <span class="stationname">{{item.channelid}}</span>
-        <span class="flex"></span>
-      </div>
-                
-    </template>
+        <div id="{{item.key}}" station="{{item.title}}" class="horizontal layout">
+          <iron-icon src="{{item.image}}"></iron-icon>
+          <span class="stationname">{{item.title}}</span>
+          van
+          <span class="stationname">{{item.channelid}}</span>
+          <span class="flex"></span>
+        </div>
+
+      </template>
     </div>
 
-    <button on-click="sendVals">send vals</button>
-    <button on-click="loginToSpotify">Login to spotify</button>
+    <template if="{{!spotify_accesstoken}}"
+      <button on-click="loginToSpotify" >Login to spotify</button>
+    </template>
+
+
+      <button on-click="makePlaylist">Save this as a playlist in my Spotify Account!</button>
+
+
 
   </template>
 </dom-module>
@@ -109,11 +117,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       playlistlength: {
         type: Number,
         observer: "_playlistlengthChanged"
+      },
+      spotifyuser:{
+        type: Object,
+        notify: true
       }
     },
 
     loaded: function() {
 
+    },
+    attached: function() {
+
+
+    },
+    spotifytokenloaded: function(){
+      var self=this;
+      if (this.spotify_accesstoken){
+        console.log('I am logged in to Spotify');
+        this.spotifyApi.setAccessToken(this.spotify_accesstoken);
+        this.spotifyApi.getMe().then(function(d){
+          console.log(d);
+          self.spotifyuser = d;
+        });
+      }
+    },
+    _userdata: function(d) {
+      console.log('data', d);
+      //d.detail.set({ok:true});
     },
     prepare: function() {
       if (!this.radios) {
@@ -129,55 +160,79 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         this.set('radios', r);
         console.log('Prepared');
-        var self =this;
+        var self = this;
         document.querySelector("#loginbox").addEventListener("response", function(e) {
-          console.log("Your spotify bearer token is" + e.detail["!/#access_token"]);
-          self.spotify_accesstoken= e.detail["!/#access_token"];
+          var token = e.detail['access_token'] || e.detail["!/#access_token"];
+          console.log("Your spotify bearer token is" + token);
+          self.spotify_accesstoken = token;
         });
       }
     },
     ready: function() {
       console.log(this.radios);
+      this.spotifyApi = new SpotifyWebApi();
     },
     loginToSpotify: function() {
       this.$.loginbox.open();
     },
     sliderChanged: function(e, detail, sender) {
-      console.log('Slider changed for channel ' + e.model.item.key + ' to ' + detail.value);
+      //console.log('Slider changed for channel ' + e.model.item.key + ' to ' + detail.value);
+      this.sendVals();
     },
-    _playlistlengthChanged: function(){
-      console.log('length of playlist',this.playlistlength);
+    _playlistlengthChanged: function() {
+      console.log('length of playlist', this.playlistlength);
     },
-    makePlaylist: function(){
-        var playlistitems = [];
-        for(var i=0;i<this.playlist.length;i++){
-          var uri = "spotify:track:" + this.playlist[i].spotifyurl.split('/')[4]
-          playlistitems.push(uri);
-        }
+    makePlaylist: function() {
 
-        var spotifyApi = new SpotifyWebApi();
-        spotifyApi.setAccessToken(this.spotify_accesstoken);
-        spotifyApi.createPlaylist(118357449,  {
-            'name': 'Piradio @ ' + new Date().toString(),
-            'public': true
-          })
-          .then(function(data) {
-            console.log('Created playlist!', data);
-            console.log('playlist id=', data.id)
-            console.log('playlist URIs', playlistitems);
+      var self=this;
 
-            spotifyApi.addTracksToPlaylist(118357449, data.id, playlistitems)
-              .then(function(data) {
-                console.log('Added ' + playlistitems.length + 'tracks to playlist!');
-              }, function(err) {
-                console.log(' addTracksToPlaylist Something went wrong!', err);
-              });
+      console.log(this.spotifyuser);
+      if (!this.spotifyuser.id){
+        alert('you are not logged in to Spotify...');
+        return;        
+      }
+
+     
+
+    
+      //this.spotifyApi.setAccessToken(this.spotify_accesstoken);
+      this.spotifyApi.createPlaylist(self.spotifyuser.id, {
+          'name': 'Piradio @ ' + new Date().toString(),
+          'public': true
+        })
+        .then(function(data) {
+          console.log('Created playlist!', data);
+          console.log('playlist id=', data.id)
+          console.log('playlist URIs', playlistitems);
 
 
+          var playlistitems = [];
+          var count=0;
+          for (var i = 0; i < self.playlist.length; i++) {
+            var uri = "spotify:track:" + self.playlist[i].spotifyurl.split('/')[4]
+            playlistitems.push(uri);
+          }
+          addtoPlaylist(playlistitems);
 
-          }, function(err) {
-            console.log('Something went wrong!', err);
-          });
+          function addtoPlaylist(items){
+            var firstitems = items.slice(0,30);
+            self.spotifyApi.addTracksToPlaylist(self.spotifyuser.id, data.id, firstitems)
+                .then(function(data) {
+                  console.log('Added ' + items.length + 'tracks to playlist!');
+                  if (items.length>30){
+                    console.log('iterate again...');
+                    addtoPlaylist(items.slice(30));
+                  }
+                }, function(err) {
+                  console.log(' addTracksToPlaylist Something went wrong!', err);
+                });              
+
+          }
+
+
+        }, function(err) {
+          console.log('Something went wrong!', err);
+        });
 
 
     },
@@ -192,22 +247,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var radiocount = 0;
       this.radios.map(function(radio) {
         totalweight += radio.sliderval;
-        if (radio.sliderval > 0){
+        if (radio.sliderval > 0) {
           radiocount++;
         }
       });
 
-      this.playlist = [];      
+      this.playlist = [];
 
 
       this.radios.map(function(radio) {
         if (radio.sliderval > 0) {
-          console.log('adding',radio.sliderval,'pct of ',radio.key); 
+          console.log('adding', radio.sliderval, 'pct of ', radio.key);
           var list = new Firebase("https://popping-heat-1762.firebaseio.com/radioplus/playlists/" + radio.key + "/" + (currentday - 1));
           list.once('value', function(snapshot) {
 
             var requestedsongs = Math.floor(self.playlistlength * (radio.sliderval / totalweight));
-            console.log('adding',radio.sliderval,'pct of ',radio.key,'equals',requestedsongs,'of',self.playlistlength); 
+            console.log('adding', radio.sliderval, 'pct of ', radio.key, 'equals', requestedsongs, 'of', self.playlistlength);
 
             var addedsongs = 0;
             var channel_playlist = snapshot.val();
@@ -215,11 +270,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               if (channel_playlist.hasOwnProperty(index)) {
                 if (addedsongs < requestedsongs) {
                   var song = channel_playlist[index];
-                  if (song.spotifyurl){
+                  if (song.spotifyurl) {
                     console.log(song);
                     self.push('playlist', song);
                     addedsongs++;
-                  }else{
+                  } else {
                     console.log('this song has no spotify URL');
                   }
                 }
@@ -227,9 +282,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             }
 
             radiocount--;
-            if (radiocount==0){
-              console.log('last radio -> roll playlist of ',self.playlist.length,'songs');
-              self.makePlaylist();
+            if (radiocount == 0) {
+              console.log('last radio -> roll playlist of ', self.playlist.length, 'songs');
+              //self.readyToMakePlaylist = true;
+              //self.makePlaylist();
             }
 
           });
@@ -238,5 +294,5 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
   });
-})();  
+})();
 </script>
