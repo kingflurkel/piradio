@@ -91,7 +91,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
     <span>{{spotifyuser.display_name}}</span>
-    <template is="dom-if" if="{{!spotifyuser}}">
+    <template is="dom-if" if="!{{spotifyuser}}">
       <button on-click="loginToSpotify" >Login to spotify to save this playlist</button>      
     </template>
 
