@@ -66,12 +66,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </template>
 
-      <oauth-v2 id="loginbox"  url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-public"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
+      <oauth-v2 id="loginbox"  on-response="loggedin" url-params='["scope"]' scope-delimiter="," scope='["playlist-modify-public"]' endpoint="https://accounts.spotify.com/authorize" client_id="ec6061fe5a4b49a5a093d5260a485388" redirect_uri="http%3A%2F%2Flocalhost%3A3000%2F%23!%2Fmix" response_type="token"></oauth-v2>
 
       <div class="radiostation horizontal layout">
         <span class="stationname">Playlistlength</span>
         <span class="flex"></span>
-        <paper-slider value="{{playlistlength}}"  on-value-changed="sliderChanged" min="20" max="300"></paper-slider>
+        <paper-slider value="{{playlistlength}}"  on-value-changed="sliderChanged" min="20" max="1000"></paper-slider>
         <span>{{playlistlength}}</span>
       </div>
 
@@ -83,19 +83,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-icon src="{{item.image}}"></iron-icon>
           <span class="stationname">{{item.title}}</span>
           van
-          <span class="stationname">{{item.channelid}}</span>
+          <span class="stationname">{{radios[item.channelid].name}}</span>
           <span class="flex"></span>
         </div>
 
       </template>
     </div>
 
-    <template if="{{!spotify_accesstoken}}"
-      <button on-click="loginToSpotify" >Login to spotify</button>
+    <span>{{spotifyuser.display_name}}</span>
+    <template is="dom-if" if="{{!spotifyuser}}">
+      <button on-click="loginToSpotify" >Login to spotify to save this playlist</button>      
     </template>
 
 
+    <template is="dom-if" if="{{spotifyuser}}">
       <button on-click="makePlaylist">Save this as a playlist in my Spotify Account!</button>
+    </template>
 
 
 
@@ -131,15 +134,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
     },
-    spotifytokenloaded: function(){
+    spotify_loggedin: function(){
+      return (this.spotifyuser != null);
+    },
+    loggedin: function(d){
+      console.log('logged in',d);
+      this.spotify_accesstoken = d.detail.access_token;
+      this.spotifygetme();
+    },
+    spotifygetme: function(){
       var self=this;
-      if (this.spotify_accesstoken){
-        console.log('I am logged in to Spotify');
         this.spotifyApi.setAccessToken(this.spotify_accesstoken);
         this.spotifyApi.getMe().then(function(d){
           console.log(d);
           self.spotifyuser = d;
         });
+
+    },
+    spotifytokenloaded: function(){
+      var self=this;
+      this.spotifyuser = null;
+      if (this.spotify_accesstoken){
+        console.log('I am logged in to Spotify');
+        self.spotifygetme();
       }
     },
     _userdata: function(d) {
@@ -209,11 +226,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           var playlistitems = [];
           var count=0;
           for (var i = 0; i < self.playlist.length; i++) {
-            var uri = "spotify:track:" + self.playlist[i].spotifyurl.split('/')[4]
-            playlistitems.push(uri);
+            var uri = "spotify:track:" + self.playlist[i].spotifyurl.split('/')[4];
+            if (!playlistitems.includes(uri)){
+              playlistitems.push(uri);
+            }
           }
+          console.log('your playlist contains ',playlistitems.length,' songs.');
           addtoPlaylist(playlistitems);
 
+          // add items to playlist in batches...
+          // the API url encodes the playlistitems - so it is limited to the 
+          // size of the URL length...
           function addtoPlaylist(items){
             var firstitems = items.slice(0,30);
             self.spotifyApi.addTracksToPlaylist(self.spotifyuser.id, data.id, firstitems)
@@ -238,6 +261,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
     sendVals: function() {
       var self = this;
+
+      if (!this.radios){
+        // too early
+        return;
+      }
+
       var currentday = Math.floor(Date.now() / 8.64e7);
       console.log("Current day=" + currentday);
 
@@ -253,36 +282,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       this.playlist = [];
+      this.playlisturls = [];
+      this.radiohistogram = {};
 
 
       this.radios.map(function(radio) {
         if (radio.sliderval > 0) {
           console.log('adding', radio.sliderval, 'pct of ', radio.key);
-          var list = new Firebase("https://popping-heat-1762.firebaseio.com/radioplus/playlists/" + radio.key + "/" + (currentday - 1));
-          list.once('value', function(snapshot) {
+
+          var list = new Firebase("https://popping-heat-1762.firebaseio.com/radioplus/playlists/" + radio.key);
+
+          list.orderByKey().startAt((currentday - 3).toString()).once('value', function(snapshot) {
 
             var requestedsongs = Math.floor(self.playlistlength * (radio.sliderval / totalweight));
             console.log('adding', radio.sliderval, 'pct of ', radio.key, 'equals', requestedsongs, 'of', self.playlistlength);
 
+            var availablesongs = 0;
+            var listperday = snapshot.val();
+            var channel_playlist = {};
+            for (var day in listperday) {
+              if (listperday.hasOwnProperty(day)) {
+                for (var songid in listperday[day]) {
+                  if (listperday[day].hasOwnProperty(songid)) {
+                    if (!channel_playlist[songid]){
+                      channel_playlist[songid] = listperday[day][songid];
+                      availablesongs++;
+                    }
+                  }
+                }
+              }
+            }
+            self.radiohistogram[radio.key] = { availablesongs: availablesongs, requestedsongs: requestedsongs };
+
             var addedsongs = 0;
-            var channel_playlist = snapshot.val();
+
             for (var index in channel_playlist) {
               if (channel_playlist.hasOwnProperty(index)) {
                 if (addedsongs < requestedsongs) {
                   var song = channel_playlist[index];
                   if (song.spotifyurl) {
-                    console.log(song);
-                    self.push('playlist', song);
-                    addedsongs++;
+                    //console.log(song);
+                    if (!self.playlisturls.includes(song.spotifyurl)){
+                      console.log('adding ',song.title,song.spotifyurl);
+                      self.push('playlist', song);
+                      self.push('playlisturls',song.spotifyurl);
+                      addedsongs++;
+                    }else{
+                      console.log('duplicate song ignored..');
+                    }
                   } else {
                     console.log('this song has no spotify URL');
                   }
                 }
               }
             }
+            self.radiohistogram[radio.key].addedsongs = addedsongs;
 
             radiocount--;
             if (radiocount == 0) {
+              console.log('histogram');
+              console.log(self.radiohistogram);
               console.log('last radio -> roll playlist of ', self.playlist.length, 'songs');
               //self.readyToMakePlaylist = true;
               //self.makePlaylist();
